@@ -15,9 +15,10 @@ import * as DBR from 'vision-camera-dynamsoft-barcode-reader';
 import {Worklets, useSharedValue} from 'react-native-worklets-core';
 import {sleep} from '../Utils';
 import { getTemplate } from '../TemplateUtils';
+import { DetectedQuadResult, Point } from 'vision-camera-dynamsoft-document-normalizer';
 
 export interface ScannerProps{
-  onScanned?: (photo:PhotoFile,results:DBR.TextResult[]) => void;
+  onScanned?: (photo:PhotoFile,results:DetectedQuadResult) => void;
 }
 
 export interface ScanRegion {
@@ -33,8 +34,8 @@ function Scanner(props:ScannerProps): React.JSX.Element {
   const [hasPermission, setHasPermission] = useState(false);
   const [isActive, setIsActive] = useState(false);
   const [viewBox, setViewBox] = useState('0 0 1080 1920');
-  const [frameWidth,setFrameWidth] = useState(1280);
-  const [frameHeight,setFrameHeight] = useState(720);
+  const [frameWidth,setFrameWidth] = useState(1920);
+  const [frameHeight,setFrameHeight] = useState(1080);
   const [barcodeResults, setBarcodeResults] = useState([] as DBR.TextResult[]);
   const [scanRegions,setScanRegions] = useState([] as ScanRegion[]);
   const device = useCameraDevice('back');
@@ -81,7 +82,7 @@ function Scanner(props:ScannerProps): React.JSX.Element {
     }
     let regions = [topLeftRegion,topRightRegion,bottomRightRegion,bottomLeftRegion];
     console.log(regions);
-    const template = getTemplate();
+    const template = getTemplate(regions);
     console.log(template);
     DBR.initRuntimeSettingsFromString(template);
     setScanRegions(regions);
@@ -146,7 +147,7 @@ function Scanner(props:ScannerProps): React.JSX.Element {
         if (props.onScanned) {
           props.onScanned(
             photo,
-            results
+            convertBarcodeResultsToDetectionResult(results,photo)
           );
         }
       }else{
@@ -154,6 +155,79 @@ function Scanner(props:ScannerProps): React.JSX.Element {
       }
     }
   };
+
+  const scaledPointValue = (value:number,isHeight:boolean,photoWidth:number,photoHeight:number) => {
+    console.log("scaledPointValue")
+    console.log(getFrameSize())
+    console.log(photoWidth)
+    console.log(photoHeight)
+    let frameW = getFrameSize()[0];
+    let frameH = getFrameSize()[1];
+    if (frameW<frameH && photoWidth>photoHeight) {
+      let temp = photoWidth;
+      photoWidth = photoHeight;
+      photoHeight = temp;
+    }
+    if (isHeight) {
+      return Math.ceil(value / (frameH / photoHeight));
+    }else{
+      return Math.ceil(value / (frameW / photoWidth));
+    }
+  };
+
+  const convertBarcodeResultsToDetectionResult = (results:DBR.TextResult[],photo:PhotoFile):DetectedQuadResult => {
+    let sorted = sortedResults(results);
+    for (let index = 0; index < sorted.length; index++) {
+      const result = sorted[index];
+      result.x1 = scaledPointValue(result.x1,false,photo.width,photo.height);
+      result.x2 = scaledPointValue(result.x2,false,photo.width,photo.height);
+      result.x3 = scaledPointValue(result.x3,false,photo.width,photo.height);
+      result.x4 = scaledPointValue(result.x4,false,photo.width,photo.height);
+      result.y1 = scaledPointValue(result.y1,true,photo.width,photo.height);
+      result.y2 = scaledPointValue(result.y2,true,photo.width,photo.height);
+      result.y3 = scaledPointValue(result.y3,true,photo.width,photo.height);
+      result.y4 = scaledPointValue(result.y4,true,photo.width,photo.height);
+    }
+    let point1 = {x:sorted[0].x3,y:sorted[0].y3};
+    let point2 = {x:sorted[1].x1,y:sorted[1].y4};
+    let point3 = {x:sorted[2].x1,y:sorted[2].y1};
+    let point4 = {x:sorted[3].x2,y:sorted[3].y1};
+    let points:[Point,Point,Point,Point] = [point1,point2,point3,point4];
+    let detectionResult:DetectedQuadResult = {
+      confidenceAsDocumentBoundary: 90,
+      location: {
+        points: points
+      },
+      area: 0
+    }
+    console.log(points)
+    return detectionResult;
+  }
+
+  const sortedResults = (results:DBR.TextResult[]):DBR.TextResult[] => {
+    let size = getFrameSize();
+    let width = size[0];
+    let height = size[1];
+    let centerX = width/2;
+    let centerY = height/2;
+    let topLeftResult;
+    let topRightResult;
+    let bottomRightResult;
+    let bottomLeftResult;
+    for (let index = 0; index < results.length; index++) {
+      const result = results[index];
+      if (result.x1 - centerX < 0 && result.y1 - centerY < 0) {
+        topLeftResult = result;
+      }else if (result.x1 - centerX > 0 && result.y1 - centerY < 0) {
+        topRightResult = result;
+      }else if (result.x1 - centerX > 0 && result.y1 - centerY > 0) {
+        bottomRightResult = result;
+      }else if (result.x1 - centerX < 0 && result.y1 - centerY > 0) {
+        bottomLeftResult = result;
+      }
+    }
+    return [topLeftResult,topRightResult,bottomRightResult,bottomLeftResult] as DBR.TextResult[];
+  }
 
   const updateFrameSize = (width:number,height:number) => {
     if (width != frameWidth) {
@@ -174,6 +248,7 @@ function Scanner(props:ScannerProps): React.JSX.Element {
     }
     setBarcodeResults(converted);
   }
+
   const convertAndSetBarcodeResultsJS = Worklets.createRunOnJS(convertAndSetBarcodeResults);
   useEffect(() => {
     updateViewBox();
@@ -186,7 +261,7 @@ function Scanner(props:ScannerProps): React.JSX.Element {
         'worklet';
         updateFrameSizeJS(frame.width,frame.height)
         try {
-          const results = DBR.decode(frame);
+          const results = DBR.decode(frame,{templateName:"MultiRegions"});
           console.log(results);
           if (results) {
             convertAndSetBarcodeResultsJS(results);

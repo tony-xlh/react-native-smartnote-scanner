@@ -57,10 +57,10 @@ function App(): React.JSX.Element {
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const onScanned = async (photo:PhotoFile,results:DBR.TextResult[]) => {
+  const onScanned = async (photo:PhotoFile,detectionResult:DDN.DetectedQuadResult) => {
     setIsScanning(false);
     setScanningResult({
-      results:results,
+      detectionResult:detectionResult,
       photoPath:photo.path
     })
     setIsShowResultViewer(true);
@@ -86,7 +86,7 @@ function App(): React.JSX.Element {
           <Button title="Start Scanning" onPress={() => {startScanning()}} />
         </View>
       )}
-      {isScanning && <Scanner onScanned={(photo,results)=> onScanned(photo,results)} />}
+      {isScanning && <Scanner onScanned={(photo,detectionResult)=> onScanned(photo,detectionResult)} />}
       {isShowResultViewer && <ResultViewer result={scanningResult} onBack={()=>{onBack()}} />}
     </SafeAreaView>
   );

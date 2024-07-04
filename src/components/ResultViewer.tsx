@@ -9,7 +9,7 @@ import { TextResult } from "vision-camera-dynamsoft-barcode-reader";
 export interface ResultViewerProps{
   result:{
     photoPath:string;
-    results:TextResult[];
+    detectionResult:DetectedQuadResult;
   }
   onBack?: () => void;
 }
@@ -36,29 +36,19 @@ export default function ResultViewer(props:ResultViewerProps) {
     }
   }
 
-  const convertBarcodeResultsToDetectionResult = (results:TextResult[]):DetectedQuadResult => {
-    let point1 = {x:results[0].x3,y:results[0].y3};
-    let point2 = {x:results[1].x1,y:results[1].y3};
-    let point3 = {x:results[2].x1,y:results[0].y1};
-    let point4 = {x:results[0].x3,y:results[0].y1};
-    let detectionResult:DetectedQuadResult = {
-      confidenceAsDocumentBoundary: 90,
-      location: {
-        points: [point1,point2,point3,point4]
-      },
-      area: 0
-    }
-    return detectionResult;
-  }
 
   const normalize = async () => {
     let templateName = "NormalizeDocument_Color";
-    let detectionResult = convertBarcodeResultsToDetectionResult(props.result.results);
+    let detectionResult = props.result.detectionResult;
     let photoPath = props.result.photoPath;
+    console.log("points length")
+    console.log(detectionResult.location.points.length)
     let normalizedImageResult = await DDN.normalizeFile(photoPath, detectionResult.location,{saveNormalizationResultAsFile:true},templateName);
     console.log(normalizedImageResult);
     if (normalizedImageResult.imageURL) {
       setNormalizedImagePath(normalizedImageResult.imageURL)
+    }else{
+      setNormalizedImagePath(props.result.photoPath);
     }
   }
 
