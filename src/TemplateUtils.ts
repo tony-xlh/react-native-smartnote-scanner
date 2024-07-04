@@ -3,7 +3,7 @@ import { ScanRegion } from "./components/Scanner";
 const defaultTemplate = `{
   "ImageParameter" :  {
       "BarcodeFormatIds" : ["BF_QR_CODE"],
-      "Name" : "Settings", 
+      "Name" : "MultiRegions", 
       "Timeout": 5000,
       "RegionDefinitionNameArray": [],
       "ExpectedBarcodesCount": 4
