@@ -19,6 +19,13 @@ export interface ScannerProps{
   onScanned?: (photo:PhotoFile|null) => void;
 }
 
+export interface ScanRegion {
+  left:number,
+  width:number,
+  top:number,
+  height:number
+}
+
 function Scanner(props:ScannerProps): React.JSX.Element {
   const takenShared = useSharedValue(false);
   const camera = useRef<Camera|null>(null);
@@ -28,6 +35,7 @@ function Scanner(props:ScannerProps): React.JSX.Element {
   const [frameWidth,setFrameWidth] = useState(1280);
   const [frameHeight,setFrameHeight] = useState(720);
   const [barcodeResults, setBarcodeResults] = useState([] as DBR.TextResult[]);
+  const [scanRegions,setScanRegions] = useState([] as ScanRegion[]);
   const device = useCameraDevice('back');
   const cameraFormat = useCameraFormat(device, [
     { videoAspectRatio: 16 / 9 },
@@ -37,7 +45,49 @@ function Scanner(props:ScannerProps): React.JSX.Element {
   ]);
   const photoTaken = useRef(false);
 
+  const adaptScanRegionBasedOnFrameSize = () => {
+    //A5: 140x210mm
+    console.log("adaptScanRegionBasedOnFrameSize")
+    let size = getFrameSize();
+    let width = size[0];
+    let height = size[1];
+    let regionWidth = 0.8*size[0];
+    let desiredRegionHeight = regionWidth/(140/210);
+    let regionHeightPercent = desiredRegionHeight/size[1];
+    let topLeftRegion:ScanRegion = {
+      left: 0.1*width,
+      width: 0.8*width*0.3,
+      top: 0.1*height,
+      height: 0.8*width*0.3
+    }
+    let topRightRegion:ScanRegion = {
+      left: 0.9*width - 0.8*width*0.3,
+      width: 0.8*width*0.3,
+      top: 0.1*height,
+      height: 0.8*width*0.3
+    }
+    let bottomRightRegion:ScanRegion = {
+      left: 0.9*width - 0.8*width*0.3,
+      width: 0.8*width*0.3,
+      top: 0.1*height + regionHeightPercent*height - 0.8*width*0.3,
+      height: 0.8*width*0.3
+    }
+    let bottomLeftRegion:ScanRegion = {
+      left: 0.1*width,
+      width: 0.8*width*0.3,
+      top: 0.1*height + regionHeightPercent*height - 0.8*width*0.3,
+      height: 0.8*width*0.3
+    }
+    let regions = [topLeftRegion,topRightRegion,bottomRightRegion,bottomLeftRegion];
+    console.log(regions);
+    setScanRegions(regions);
+  }
+
+  useEffect(() => {
+    adaptScanRegionBasedOnFrameSize();
+  }, [viewBox]);
   
+
   const getFrameSize = () => {
     let width, height;
     width = frameWidth;
@@ -147,6 +197,14 @@ function Scanner(props:ScannerProps): React.JSX.Element {
     pointsData = pointsData+lr.x4 + "," + lr.y4;
     return pointsData;
   }
+
+  const getPointsDataFromRegion = (region:ScanRegion) => {
+    var pointsData = region.left + "," + region.top + " ";
+    pointsData = pointsData + (region.left+region.width) + "," + region.top +" ";
+    pointsData = pointsData + (region.left+region.width) + "," + (region.top+region.height) +" ";
+    pointsData = pointsData + region.left + "," + (region.top+region.height);
+    return pointsData;
+  }
   
   return (
     <>
@@ -167,13 +225,22 @@ function Scanner(props:ScannerProps): React.JSX.Element {
             style={StyleSheet.absoluteFill}
             preserveAspectRatio='xMidYMid slice'
             viewBox={viewBox}>
-             {barcodeResults.map((barcode, idx) => (
+            {barcodeResults.map((barcode, idx) => (
               <Polygon key={"poly-"+idx}
                 points={getPointsData(barcode)}
                 fill="lime"
                 stroke="green"
                 opacity="0.5"
                 strokeWidth="1"
+              />
+            ))}
+            {scanRegions.map((region, idx) => (
+              <Polygon key={"region-"+idx}
+                points={getPointsDataFromRegion(region)}
+                fill="transparent"
+                stroke="red"
+                opacity="0.5"
+                strokeWidth="3"
               />
             ))}
           </Svg>
