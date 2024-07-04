@@ -12,13 +12,16 @@ import {
 import * as DBR from 'vision-camera-dynamsoft-barcode-reader';
 import * as DDN from 'vision-camera-dynamsoft-document-normalizer';
 import Scanner from './components/Scanner';
+import ResultViewer from './components/ResultViewer';
 import { PhotoFile } from 'react-native-vision-camera';
-import { DetectedQuadResult } from 'vision-camera-dynamsoft-document-normalizer';
+
 
 function App(): React.JSX.Element {
-  const [photoBase64, setPhotoBase64] = useState<string|undefined>();
   const [isScanning, setIsScanning] = useState(false);
-  const [barcodeText, setBarcodeText] = useState("");
+  const [isShowResultViewer, setIsShowResultViewer] = useState(false);
+  const [isShowMain, setIsShowMain] = useState(true);
+  const [scanningResult,setScanningResult] = useState<any>();
+  
   React.useEffect(() => {
     BackHandler.addEventListener('hardwareBackPress', function () {
       if (!isScanning) {
@@ -27,6 +30,7 @@ function App(): React.JSX.Element {
          * & no other back action will execute
          */
         setIsScanning(false);
+        setIsShowMain(true);
         return true;
       }
       /**
@@ -53,38 +57,37 @@ function App(): React.JSX.Element {
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const onScanned = async (photo:PhotoFile|null,points?:DDN.Point[]|null) => {
+  const onScanned = async (photo:PhotoFile,results:DBR.TextResult[]) => {
     setIsScanning(false);
-    console.log('onScanned');
-    console.log(photo);
+    setScanningResult({
+      results:results,
+      photoPath:photo.path
+    })
+    setIsShowResultViewer(true);
   };
+
+  const onBack = () => {
+    setIsShowResultViewer(false);
+    setIsShowMain(true);
+  }
+
+  const startScanning = () => {
+    setIsScanning(true);
+    setIsShowMain(false);
+  }
+
   return (
     <SafeAreaView style={styles.container}>
-      {!isScanning && (
+      {isShowMain && (
         <View style={styles.main}>
           <Text style={styles.title}>
             SmartNote Scanner
           </Text>
-          <Button title="Start Scanning" onPress={() => setIsScanning(true)} />
-          {photoBase64 && (
-            <>
-              <Text style={styles.scannedLbl}>
-                Scanned:
-              </Text>
-              <Text ellipsizeMode='tail' style={{maxHeight:150}} >
-                {barcodeText}
-              </Text>
-              <Image
-                style={styles.image}
-                source={{
-                  uri: 'data:image/jpeg;base64,' + photoBase64,
-                }}
-              />
-            </>
-          )}
+          <Button title="Start Scanning" onPress={() => {startScanning()}} />
         </View>
       )}
-      {isScanning && <Scanner onScanned={(photo)=> onScanned(photo)} />}
+      {isScanning && <Scanner onScanned={(photo,results)=> onScanned(photo,results)} />}
+      {isShowResultViewer && <ResultViewer result={scanningResult} onBack={()=>{onBack()}} />}
     </SafeAreaView>
   );
 }

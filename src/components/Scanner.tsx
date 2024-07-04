@@ -14,9 +14,10 @@ import {Svg, Polygon} from 'react-native-svg';
 import * as DBR from 'vision-camera-dynamsoft-barcode-reader';
 import {Worklets, useSharedValue} from 'react-native-worklets-core';
 import {sleep} from '../Utils';
+import { getTemplate } from '../TemplateUtils';
 
 export interface ScannerProps{
-  onScanned?: (photo:PhotoFile|null) => void;
+  onScanned?: (photo:PhotoFile,results:DBR.TextResult[]) => void;
 }
 
 export interface ScanRegion {
@@ -80,6 +81,9 @@ function Scanner(props:ScannerProps): React.JSX.Element {
     }
     let regions = [topLeftRegion,topRightRegion,bottomRightRegion,bottomLeftRegion];
     console.log(regions);
+    const template = getTemplate();
+    console.log(template);
+    DBR.initRuntimeSettingsFromString(template);
     setScanRegions(regions);
   }
 
@@ -129,7 +133,7 @@ function Scanner(props:ScannerProps): React.JSX.Element {
   }, []);
 
 
-  const takePhoto = async () => {
+  const takePhoto = async (results:DBR.TextResult[]) => {
     console.log('should take photo');
     if (camera.current && photoTaken.current === false) {
       console.log('take photo');
@@ -141,7 +145,8 @@ function Scanner(props:ScannerProps): React.JSX.Element {
         setIsActive(false);
         if (props.onScanned) {
           props.onScanned(
-            photo
+            photo,
+            results
           );
         }
       }else{
@@ -162,6 +167,10 @@ function Scanner(props:ScannerProps): React.JSX.Element {
     for (let index = 0; index < Object.keys(results).length; index++) {
       const key = Object.keys(results)[index];
       converted.push(results[key]);
+    }
+    console.log("barcodes count:"+converted.length);
+    if (converted.length == 4) {
+      takePhoto(converted);
     }
     setBarcodeResults(converted);
   }

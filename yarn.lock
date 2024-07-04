@@ -4348,6 +4348,11 @@ react-is@^16.13.1:
 react-is@^17.0.1:
   version "17.0.2"
 
+react-native-share@^10.2.1:
+  version "10.2.1"
+  resolved "https://registry.npmmirror.com/react-native-share/-/react-native-share-10.2.1.tgz"
+  integrity sha512-Z2LWGYWH7raM4H6Oauttv1tEhaB43XSWJAN8iS6oaSG9CnyrUBeYFF4QpU1AH5RgNeylXQdN8CtbizCHHt6coQ==
+
 react-native-svg@^15.3.0:
   version "15.3.0"
   resolved "https://registry.npmmirror.com/react-native-svg/-/react-native-svg-15.3.0.tgz"
