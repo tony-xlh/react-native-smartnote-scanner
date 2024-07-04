@@ -5063,10 +5063,10 @@ v8-to-istanbul@^9.0.1:
 vary@~1.1.2:
   version "1.1.2"
 
-vision-camera-dynamsoft-barcode-reader@^2.1.1:
-  version "2.1.1"
-  resolved "https://registry.npmmirror.com/vision-camera-dynamsoft-barcode-reader/-/vision-camera-dynamsoft-barcode-reader-2.1.1.tgz"
-  integrity sha512-j2r9LzjW8Jmc7xkbb1JsZhe37BR/VL4fMOowTkTKKb80B9snaSNDgDmMajyyh4JZv8Q4OqdyT6zPjhVQegnNEg==
+vision-camera-dynamsoft-barcode-reader@^2.1.2:
+  version "2.1.2"
+  resolved "https://registry.npmjs.org/vision-camera-dynamsoft-barcode-reader/-/vision-camera-dynamsoft-barcode-reader-2.1.2.tgz"
+  integrity sha512-uywPnnqsxgUR2aAULDYbLBqTxjXYtXltO5sXthh1Xh/Gvi0h+x9hIQcEqe624NFGLJY+TSqNofBw5GARFRH+mw==
 
 vision-camera-dynamsoft-document-normalizer@^3.2.1:
   version "3.2.1"
