@@ -257,7 +257,7 @@ function Scanner(props:ScannerProps): React.JSX.Element {
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
     if (takenShared.value == false) {
-      runAsync(frame, () => {
+      runAtTargetFps(5, () => {
         'worklet';
         updateFrameSizeJS(frame.width,frame.height)
         try {
