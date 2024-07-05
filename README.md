@@ -7,6 +7,7 @@ The smart notebook has QR codes around the corners for alignment and location. I
 https://github.com/xulihang/react-native-smartnote-scanner/assets/5462205/12684358-5db5-47d4-ba22-7a66e180c880
 
 
+Here is the PSD template of the note page for you to have a test: https://github.com/tony-xlh/react-native-smartnote-scanner/releases/download/0.0.1/template.zip
 
 License Application: https://www.dynamsoft.com/customer/license/trialLicense/
 
