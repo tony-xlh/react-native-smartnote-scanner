@@ -1,4 +1,14 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+This is a React Native demo to scan smart notebooks.
+
+The smart notebook has QR codes around the corners for alignment and location. It use React Native Vision Camera as the camera library, [Dynamsoft Barcode Reader](https://www.dynamsoft.com/barcode-reader/overview/) to read barcodes and [Dynamsoft Document Normalizer](https://www.dynamsoft.com/document-normalizer/docs/core/introduction/) to crop the documents.
+
+
+
+https://github.com/xulihang/react-native-smartnote-scanner/assets/5462205/12684358-5db5-47d4-ba22-7a66e180c880
+
+
+
+License Application: https://www.dynamsoft.com/customer/license/trialLicense/
 
 # Getting Started
 
