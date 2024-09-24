@@ -12,8 +12,20 @@ const defaultTemplate = `{
   "Version" : "3.0"
 }`
 
-export function getTemplate(scanRegions?:ScanRegion[]) {
-  if (scanRegions) {
+export function getTemplate(config:{scanRegions?:ScanRegion[],rotated:boolean}) {
+  if (config.scanRegions) {
+    let scanRegions = JSON.parse(JSON.stringify(config.scanRegions));
+    if (config.rotated === true) {
+      for (let index = 0; index < scanRegions.length; index++) {
+        const region = scanRegions[index];
+        let left = region.left;
+        let width = region.width;
+        region.left = region.top;
+        region.width = region.height;
+        region.top = left;
+        region.height = width
+      }
+    }
     let template = JSON.parse(defaultTemplate);
     for (let index = 0; index < scanRegions.length; index++) {
       const scanRegion = scanRegions[index];

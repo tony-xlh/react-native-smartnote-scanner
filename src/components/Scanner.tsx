@@ -56,6 +56,7 @@ function Scanner(props:ScannerProps): React.JSX.Element {
     let regionWidth = 0.8*size[0];
     let desiredRegionHeight = regionWidth/(140/210);
     let regionHeightPercent = desiredRegionHeight/size[1];
+    
     let topLeftRegion:ScanRegion = {
       left: 0.1*width,
       width: 0.8*width*0.3,
@@ -80,9 +81,11 @@ function Scanner(props:ScannerProps): React.JSX.Element {
       top: 0.1*height + regionHeightPercent*height - 0.8*width*0.3,
       height: 0.8*width*0.3
     }
+
     let regions = [topLeftRegion,topRightRegion,bottomRightRegion,bottomLeftRegion];
+
     console.log(regions);
-    const template = getTemplate(regions);
+    const template = getTemplate({scanRegions:regions,rotated:hasRotation()});
     console.log(template);
     DBR.initRuntimeSettingsFromString(template);
     setScanRegions(regions);
@@ -97,27 +100,28 @@ function Scanner(props:ScannerProps): React.JSX.Element {
     let width, height;
     width = frameWidth;
     height = frameHeight;
-    if (frameWidth>frameHeight){
-      if (Dimensions.get('window').width>Dimensions.get('window').height) {
-        width = frameWidth;
-        height = frameHeight;
-      }else{
-        console.log("Has rotation");
-        width = frameHeight;
-        height = frameWidth;
-      }
-    }else if (frameWidth<frameHeight) {
-      if (Dimensions.get('window').width<Dimensions.get('window').height) {
-        width = frameWidth;
-        height = frameHeight;
-      }else{
-        console.log("Has rotation");
-        width = frameHeight;
-        height = frameWidth;
-      }
+    if (hasRotation()) {
+      width = frameHeight;
+      height = frameWidth;
     }
     return [width, height];
   };
+
+  const hasRotation = () => {
+    let rotated = false;
+    if (frameWidth>frameHeight){
+      if (Dimensions.get('window').width<=Dimensions.get('window').height) {
+        console.log("Has rotation");
+        rotated = true;
+      }
+    }else if (frameWidth<frameHeight) {
+      if (Dimensions.get('window').width>=Dimensions.get('window').height) {
+        console.log("Has rotation");
+        rotated = true;
+      }
+    }
+    return rotated;
+  }
 
   const updateViewBox = () => {
     const frameSize = getFrameSize();
@@ -261,7 +265,7 @@ function Scanner(props:ScannerProps): React.JSX.Element {
         'worklet';
         updateFrameSizeJS(frame.width,frame.height)
         try {
-          const results = DBR.decode(frame,{templateName:"MultiRegions"});
+          const results = DBR.decode(frame,{rotateImage:false,isFront:false,templateName:"MultiRegions"});
           console.log(results);
           if (results) {
             convertAndSetBarcodeResultsJS(results);

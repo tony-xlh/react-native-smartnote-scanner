@@ -1179,19 +1179,19 @@ PODS:
   - RNSVG (15.3.0):
     - React-Core
   - SocketRocket (0.7.0)
-  - VisionCamera (4.3.2):
-    - VisionCamera/Core (= 4.3.2)
-    - VisionCamera/FrameProcessors (= 4.3.2)
-    - VisionCamera/React (= 4.3.2)
-  - VisionCamera/Core (4.3.2)
-  - VisionCamera/FrameProcessors (4.3.2):
+  - VisionCamera (4.5.3):
+    - VisionCamera/Core (= 4.5.3)
+    - VisionCamera/FrameProcessors (= 4.5.3)
+    - VisionCamera/React (= 4.5.3)
+  - VisionCamera/Core (4.5.3)
+  - VisionCamera/FrameProcessors (4.5.3):
     - React
     - React-callinvoker
     - react-native-worklets-core
-  - VisionCamera/React (4.3.2):
+  - VisionCamera/React (4.5.3):
     - React-Core
     - VisionCamera/FrameProcessors
-  - VisionCameraDynamsoftBarcodeReader (2.1.1):
+  - VisionCameraDynamsoftBarcodeReader (2.2.1):
     - DoubleConversion
     - DynamsoftBarcodeReader (= 9.6.40)
     - glog
@@ -1213,7 +1213,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - VisionCameraDynamsoftDocumentNormalizer (3.2.1):
+  - VisionCameraDynamsoftDocumentNormalizer (3.2.3):
     - DoubleConversion
     - DynamsoftCaptureVisionRouter (= 2.2.12)
     - DynamsoftCore (= 3.2.11)
@@ -1502,9 +1502,9 @@ SPEC CHECKSUMS:
   RNShare: 0fad69ae2d71de9d1f7b9a43acf876886a6cb99c
   RNSVG: a48668fd382115bc89761ce291a81c4ca5f2fd2e
   SocketRocket: abac6f5de4d4d62d24e11868d7a2f427e0ef940d
-  VisionCamera: 9f7b70431c8662ff933e1ed66d074bdba3a63f7d
-  VisionCameraDynamsoftBarcodeReader: 28c7866146842f9e4b76201012033500de7890db
-  VisionCameraDynamsoftDocumentNormalizer: 1124fb9d7afc1587a57b85beeee3a94536d2e940
+  VisionCamera: 3b7cfecebbcb3871c4dd3fb47791b96a47fe5371
+  VisionCameraDynamsoftBarcodeReader: 58640ef5d0ec3514d9c4facd24c5546b363757d4
+  VisionCameraDynamsoftDocumentNormalizer: b6e3fc26cda80191c14b0720c9cb3b69f994ba15
   Yoga: 04f1db30bb810187397fa4c37dd1868a27af229c
 
 PODFILE CHECKSUM: 0fafb7967fc4d65d4a72ebbb2417a8830be6ec4f
